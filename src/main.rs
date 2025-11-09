@@ -208,12 +208,18 @@ impl EventHandler for Handler {
             let total = &parts[3];
 
             match user::update_total(username, game, total) {
-                Ok(_) => {
+                Ok((new_total, crossed_threshold)) => {
                     let mes = format!(
                         "{}'s total for '{}' was updated by ${}",
-                        username, game, total
+                        username, game, new_total
                     );
                     msg.channel_id.say(&ctx.http, mes).await.ok();
+
+                    if crossed_threshold {
+                        let troll_msg =
+                            format!("@here 🚨 {} just crossed $300 in {}! 💸", username, game);
+                        msg.channel_id.say(&ctx.http, troll_msg).await.ok();
+                    }
                 }
                 Err(e) => {
                     msg.channel_id
